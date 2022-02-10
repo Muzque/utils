@@ -4,7 +4,14 @@ readonly CONFIG_DIR="${SRC_ROOT}/include"
 readonly UTIL_DIR="${SRC_ROOT}/src"
 
 function main() {
-  . ${CONFIG_DIR}/*.config
+  CONFIG_NAME="default"
+
+  if [[ ! -f "${CONFIG_DIR}/${CONFIG_NAME}.config" ]]; then
+    echo "Config not found: ${CONFIG_NAME}.config"
+    exit 1
+  fi
+
+  . ${CONFIG_DIR}/${CONFIG_NAME}.config
   ADDRESS="${username}@${ip}"
   util=${1}
   args="${@:2}"
