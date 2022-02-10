@@ -1,5 +1,6 @@
 #!/bin/bash
-set -x
+# Teleport commands
+set -e
 
 function _exec() {
     cmd=${1}
@@ -28,7 +29,8 @@ function _scp() {
 
 function usage() {
   cat <<EOUSAGE
-Usage: $(basename $0) [-h] [-s] [-L port] [-c file]
+Usage: $(basename $0) tp [-h] [-a] [-s] [-L port] [-c file]
+  -a  addr          to specify ip address
   -s                to SSH
   -L  port          to SSH and port forwarding
   -c  filepath      to SCP file
@@ -37,13 +39,14 @@ EOUSAGE
 }
 
 function main() {
-    unset SCPFILE PORT
+    unset SCPFILE PORT ADDRESS
     DO_SSH=false
     DO_PF=false
     DO_SCP=false
 
-    while [ getopts "hL:sc:" flag ]; do
+    while getopts "hL:sc:a:" flag; do
         case ${flag} in
+          a)  ADDRESS="${OPTARG}";;
           s)  DO_SSH=true ;;
           c)  DO_SCP=true
               SCPFILE="${OPTARG}" ;;
@@ -54,8 +57,10 @@ function main() {
         esac
     done
 
-    . /${pwd}/default.config
-    ADDRESS="${username}@${ip}"
+    if [[ -z "${ADDRESS}" ]]; then
+        echo "Please set ip address by -a argument."
+        exit 1
+    fi
 
     if [[ ${DO_SSH} == true ]]; then
       _ssh ${ADDRESS}
